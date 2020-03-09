@@ -28,8 +28,6 @@ jobs:
         cd $run_path
         ./gradlew build
         cd $now
-    - name: upload
-      run: | 
         Compress-Archive $run_path/build/libs mods-${{github.event.issue.number}}.zip
         echo '${{ secrets.auth }}' > auth.json
         ./OneDriveUploader.exe -s ./mods-${{github.event.issue.number}}.zip -r dist -t 8
