@@ -32,13 +32,17 @@ jobs:
         ./OneDriveUploader.exe -s ./mods-${{github.event.issue.number}}.zip -r dist -t 8
     - name: succeed
       if: success() 
-      run: | 
-          $postParams = @{'body'='https://offline.jihuayu.workers.dev/mods-${{github.event.issue.number}}.zip'}
-          Invoke-WebRequest https://api.github.com/repos/jihuayu/mod-build/issues/${{github.event.issue.number}}/comments -Method POST  -Headers @{'Authorization'='token ${{secrets.GITHUB_TOKEN }}'} -ContentType "application/json" -Body $postParams
+      uses: karlhulme/github-action-create-issue-comment@master
+      with:
+          issueNumber: ${{ github.event.issue.number }}
+          body: 'https://mods.jihuayu.workers.dev/mods-${{ github.event.issue.number }}.zip'
+      env:
+          GITHUB_TOKEN: ${{ github.token }} 
     - name: succeed
       if: failure() 
-      run: | 
-          $postParams = @{'body'='编译失败'}
-          Invoke-WebRequest https://api.github.com/repos/jihuayu/mod-build/issues/${{github.event.issue.number}}/comments -Method POST  -Headers @{'Authorization'='token ${{secrets.GITHUB_TOKEN }}'}  -ContentType "application/json" -Body $postParams
-          
-
+      uses: karlhulme/github-action-create-issue-comment@master
+      with:
+          issueNumber: ${{ github.event.issue.number }}
+          body: '编译失败'
+      env:
+          GITHUB_TOKEN: ${{ github.token }} 
