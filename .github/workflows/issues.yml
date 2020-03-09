@@ -33,12 +33,12 @@ jobs:
     - name: succeed
       if: success() 
       run: | 
-          $postParams = @{body='https://offline.jihuayu.workers.dev/mods-${{github.event.issue.number}}.zip'}
+          $postParams = @{'body'='https://offline.jihuayu.workers.dev/mods-${{github.event.issue.number}}.zip'}
           Invoke-WebRequest https://api.github.com/repos/jihuayu/mod-build/issues/${{github.event.issue.number}}/comments -Method POST  -Headers @{'Authorization'='token ${{secrets.GITHUB_TOKEN }}'} -ContentType "application/json" -Body $postParams
     - name: succeed
       if: failure() 
       run: | 
-          $postParams = @{body='编译失败'}
+          $postParams = @{'body'='编译失败'}
           Invoke-WebRequest https://api.github.com/repos/jihuayu/mod-build/issues/${{github.event.issue.number}}/comments -Method POST  -Headers @{'Authorization'='token ${{secrets.GITHUB_TOKEN }}'}  -ContentType "application/json" -Body $postParams
           
 
