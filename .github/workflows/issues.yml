@@ -20,6 +20,14 @@ jobs:
           $site = Invoke-WebRequest https://api.github.com/repos/jihuayu/mod-build/issues/${{github.event.issue.number}}
           Invoke-WebRequest ($site.Content | ConvertFrom-Json ).body -o ./pack.zip
           Expand-Archive ./pack.zip ./pack
+    - name: failure
+      if: failure() 
+      uses: karlhulme/github-action-create-issue-comment@master
+      with:
+          issueNumber: ${{ github.event.issue.number }}
+          body: '下载失败,请检查你的网址是否正确，如果正确请再次尝试。'
+      env:
+          GITHUB_TOKEN: ${{ github.token }} 
     - name: Build with Gradle
       run: |
         $now = Get-Location
@@ -39,7 +47,7 @@ jobs:
           body: 'https://mods.jihuayu.workers.dev/mods-${{ github.event.issue.number }}.zip'
       env:
           GITHUB_TOKEN: ${{ github.token }} 
-    - name: succeed
+    - name: failure
       if: failure() 
       uses: karlhulme/github-action-create-issue-comment@master
       with:
