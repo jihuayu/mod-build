@@ -34,17 +34,14 @@ jobs:
         Compress-Archive ./pack/build/libs mods-${{github.event.issue.number}}.zip
         echo '${{ secrets.auth }}' > auth.json
         ./OneDriveUploader.exe -s ./mods-${{github.event.issue.number}}.zip -r offline -t 8
-  comment:
-    runs-on: windows-latest
-    steps:
-      - name: succeed
-        if: success() 
-        run: | 
+    - name: succeed
+      if: success() 
+      run: | 
           $postParams = @{body='https://offline.jihuayu.workers.dev/mods-${{github.event.issue.number}}.zip'}
           Invoke-WebRequest https://api.github.com/repos/jihuayu/forge-offline/issues/${{github.event.issue.number}}/comments -Method GET -ContentType "application/json" -Body $postParams
-      - name: succeed
-        if: failure() 
-        run: | 
+    - name: succeed
+      if: failure() 
+      run: | 
           $postParams = @{body='编译失败'}
           Invoke-WebRequest https://api.github.com/repos/jihuayu/forge-offline/issues/${{github.event.issue.number}}/comments -Method GET -ContentType "application/json" -Body $postParams
           
