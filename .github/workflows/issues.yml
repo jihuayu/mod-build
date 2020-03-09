@@ -17,7 +17,7 @@ jobs:
         java-version: 1.8
     - name: dl issues
       run: | 
-          $site = Invoke-WebRequest https://api.github.com/repos/jihuayu/forge-offline/issues/${{github.event.issue.number}} -Method GET -ContentType "application/json"
+          $site = Invoke-WebRequest https://api.github.com/repos/jihuayu/forge-offline/issues/${{github.event.issue.number}}
           Invoke-WebRequest ($site.Content | ConvertFrom-Json ).body -o ./pack.zip
           Expand-Archive ./pack.zip ./pack
     - name: Build with Gradle
