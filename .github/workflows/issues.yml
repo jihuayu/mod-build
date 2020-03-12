@@ -17,6 +17,7 @@ jobs:
         java-version: 1.8
     - name: dl issues
       run: | 
+          chcp 65001
           $site = Invoke-WebRequest https://api.github.com/repos/jihuayu/mod-build/issues/${{github.event.issue.number}}
           Invoke-WebRequest ($site.Content | ConvertFrom-Json ).body -o ./pack.zip
           Expand-Archive ./pack.zip ./pack
@@ -30,6 +31,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }} 
     - name: Build with Gradle
       run: |
+        chcp 65001
         $now = Get-Location
         $run = Get-ChildItem -Recurse -Include gradlew.bat
         $run_path = $run[0].Directory
