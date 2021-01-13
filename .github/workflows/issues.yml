@@ -70,6 +70,6 @@ jobs:
       uses: karlhulme/github-action-create-issue-comment@master
       with:
           issueNumber: ${{ github.event.issue.number }}
-          body: '编译失败,你可以到这里查看错误日志 https://github.com/jihuayu/mod-build/actions'
+          body: '编译失败,你可以到这里查看错误日志 https://github.com/${{ github.repository }}/actions'
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
