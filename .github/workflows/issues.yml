@@ -21,10 +21,10 @@ jobs:
           Expand-Archive ./pack.zip ./pack
     - name: failure
       if: failure() 
-      uses: karlhulme/github-action-create-issue-comment@master
+      uses: peter-evans/close-issue@v1
       with:
-          issueNumber: ${{ github.event.issue.number }}
-          body: '下载失败,请检查你的网址是否正确，如果正确请再次尝试。'
+          issue-number: ${{ github.event.issue.number }}
+          comment: '下载失败,请检查你的网址是否正确，如果正确请再次尝试。'
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Build with Gradle
@@ -43,8 +43,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.event.issue.title }}
-        release_name: Build result for ${{ github.event.issue.title }}
+        tag_name: ${{ github.event.issue.number }}
+        release_name: Build result for \#${{ github.event.issue.number }}
         draft: false
         prerelease: false
     - name: Upload Release Asset
@@ -59,17 +59,17 @@ jobs:
         asset_content_type: application/zip
     - name: succeed
       if: success() 
-      uses: karlhulme/github-action-create-issue-comment@master
+      uses: peter-evans/close-issue@v1
       with:
-          issueNumber: ${{ github.event.issue.number }}
-          body: '构建完毕。下载地址：${{ steps.upload_release_asset.outputs.browser_download_url }}'
+          issue-number: ${{ github.event.issue.number }}
+          comment: '构建完毕。下载地址：${{ steps.upload_release_asset.outputs.browser_download_url }}'
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: failure
       if: failure() 
-      uses: karlhulme/github-action-create-issue-comment@master
+      uses: peter-evans/close-issue@v1
       with:
-          issueNumber: ${{ github.event.issue.number }}
-          body: '编译失败,你可以到这里查看错误日志 https://github.com/${{ github.repository }}/actions'
+          issue-number: ${{ github.event.issue.number }}
+          comment: '编译失败,你可以到这里查看错误日志 https://github.com/${{ github.repository }}/actions'
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
