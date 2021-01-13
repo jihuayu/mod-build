@@ -16,7 +16,7 @@ jobs:
     - name: dl issues
       run: | 
           chcp 65001
-          $site = Invoke-WebRequest https://api.github.com/repos/{owner}/{repo}/issues/${{github.event.issue.number}}
+          $site = Invoke-WebRequest https://api.github.com/repos/${{ github.repository }}/issues/${{github.event.issue.number}}
           Invoke-WebRequest ($site.Content | ConvertFrom-Json ).body -o ./pack.zip
           Expand-Archive ./pack.zip ./pack
     - name: failure
