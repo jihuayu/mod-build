@@ -6,9 +6,7 @@ on:
 
 jobs:
   build:
-
     runs-on: windows-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: set up JDK 1.8
@@ -18,17 +16,17 @@ jobs:
     - name: dl issues
       run: | 
           chcp 65001
-          $site = Invoke-WebRequest https://api.github.com/repos/jihuayu/mod-build/issues/${{github.event.issue.number}}
+          $site = Invoke-WebRequest https://api.github.com/repos/${{ github.repository }}/issues/${{github.event.issue.number}}
           Invoke-WebRequest ($site.Content | ConvertFrom-Json ).body -o ./pack.zip
           Expand-Archive ./pack.zip ./pack
     - name: failure
       if: failure() 
-      uses: karlhulme/github-action-create-issue-comment@master
+      uses: peter-evans/close-issue@v1
       with:
-          issueNumber: ${{ github.event.issue.number }}
-          body: '下载失败,请检查你的网址是否正确，如果正确请再次尝试。'
+          issue-number: ${{ github.event.issue.number }}
+          comment: '下载失败,请检查你的网址是否正确，如果正确请再次尝试。'
       env:
-          GITHUB_TOKEN: ${{ github.token }} 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Build with Gradle
       run: |
         chcp 65001
@@ -39,21 +37,39 @@ jobs:
         ./gradlew build
         cd $now
         Compress-Archive $run_path/build/libs mods-${{github.event.issue.number}}.zip
-        echo '${{ secrets.auth }}' > auth.json
-        ./OneDriveUploader.exe -s ./mods-${{github.event.issue.number}}.zip -r dist -t 8
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.event.issue.number }}
+        release_name: Build result for \#${{ github.event.issue.number }}
+        draft: false
+        prerelease: false
+    - name: Upload Release Asset
+      id: upload_release_asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./mods-${{github.event.issue.number}}.zip
+        asset_name: mods-${{github.event.issue.number}}.zip
+        asset_content_type: application/zip
     - name: succeed
       if: success() 
-      uses: karlhulme/github-action-create-issue-comment@master
+      uses: peter-evans/close-issue@v1
       with:
-          issueNumber: ${{ github.event.issue.number }}
-          body: 'https://mods.jihuayu.workers.dev/mods-${{ github.event.issue.number }}.zip'
+          issue-number: ${{ github.event.issue.number }}
+          comment: '构建完毕。下载地址：${{ steps.upload_release_asset.outputs.browser_download_url }}'
       env:
-          GITHUB_TOKEN: ${{ github.token }} 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: failure
       if: failure() 
-      uses: karlhulme/github-action-create-issue-comment@master
+      uses: peter-evans/close-issue@v1
       with:
-          issueNumber: ${{ github.event.issue.number }}
-          body: '编译失败,你可以到这里查看错误日志 https://github.com/jihuayu/mod-build/actions'
+          issue-number: ${{ github.event.issue.number }}
+          comment: '编译失败,你可以到这里查看错误日志 https://github.com/${{ github.repository }}/actions'
       env:
-          GITHUB_TOKEN: ${{ github.token }} 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
